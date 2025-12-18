@@ -1,86 +1,51 @@
-const axios = require("axios");
-const fs = require("fs-extra");
-const path = require("path");
-
 module.exports = {
   config: {
     name: "monitor",
     aliases: ["m"],
-    version: "1.2",
+    version: "1.5",
     author: "Denish",
     role: 0,
-    shortDescription: { en: "Displays bot uptime, ping, and a random anime image." },
-    longDescription: { en: "Shows how long the bot has been running, current ping, plus a random anime image." },
+    shortDescription: { en: "Shows bot uptime." },
+    longDescription: { en: "Displays bot running time in a clean bold style." },
     category: "info",
-    guide: { en: "Use {p}monitor to check uptime, ping, and get a random anime image." }
+    guide: { en: "Use {p}monitor to check bot uptime." }
   },
 
   onStart: async function ({ api, event }) {
-    const startTime = Date.now();
-
     try {
-      // List of anime search keywords
-      const searchList = ["lelouch", "tanjiro", "ichigo", "aizen", "luffy", "zoro"];
-      const randomSearch = searchList[Math.floor(Math.random() * searchList.length)];
+      const uptime = process.uptime();
+      const days = Math.floor(uptime / 86400);
+      const hours = Math.floor((uptime % 86400) / 3600);
+      const minutes = Math.floor((uptime % 3600) / 60);
+      const seconds = Math.floor(uptime % 60);
 
-      // Build Pinterest API URL
-      const apiUrl = `https://www.bhandarimilan.info.np/api/pinterest?query=${encodeURIComponent(randomSearch)}`;
+      let uptimeText = "⏳ 𝐁𝐎𝐓 𝐔𝐏𝐓𝐈𝐌𝐄\n\n";
+      if (days) uptimeText += `📅 𝐃𝐚𝐲𝐬      : ${days}\n`;
+      if (hours) uptimeText += `⏰ 𝐇𝐨𝐮𝐫𝐬     : ${hours}\n`;
+      if (minutes) uptimeText += `🕒 𝐌𝐢𝐧𝐮𝐭𝐞𝐬  : ${minutes}\n`;
+      uptimeText += `⏱ 𝐒𝐞𝐜𝐨𝐧𝐝𝐬   : ${seconds}\n`;
 
-      // Fetch image URLs array (strings)
-      const res = await axios.get(apiUrl, { timeout: 10000 });
-      const images = res.data?.data || [];
+      const message = `
+╭────〔 🤖 𝐁𝐎𝐓 𝐌𝐎𝐍𝐈𝐓𝐎𝐑 〕────╮
+│
+│ ${uptimeText.trim()}
+│
+╰────────────────────╯
+`;
 
-      if (!images.length) {
-        return api.sendMessage("❌ No images found from Pinterest API.", event.threadID, event.messageID);
-      }
-
-      // Pick random image URL string directly
-      const imageUrl = images[Math.floor(Math.random() * images.length)];
-
-      if (!imageUrl || !imageUrl.startsWith("http")) {
-        return api.sendMessage("❌ Invalid image URL received.", event.threadID, event.messageID);
-      }
-
-      // Download image buffer
-      const imgResponse = await axios.get(imageUrl, { responseType: "arraybuffer", timeout: 15000 });
-
-      // Save image locally
-      const cacheDir = path.join(__dirname, "cache");
-      await fs.ensureDir(cacheDir);
-      const imgPath = path.join(cacheDir, "monitor_image.jpg");
-      await fs.outputFile(imgPath, imgResponse.data);
-
-      // Calculate uptime
-      const uptimeSec = process.uptime();
-      const days = Math.floor(uptimeSec / 86400);
-      const hours = Math.floor((uptimeSec / 3600) % 24);
-      const minutes = Math.floor((uptimeSec / 60) % 60);
-      const seconds = Math.floor(uptimeSec % 60);
-
-      let uptimeStr = `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds`;
-      if (days === 0) uptimeStr = `${hours} hours, ${minutes} minutes, ${seconds} seconds`;
-      if (hours === 0 && days === 0) uptimeStr = `${minutes} minutes, ${seconds} seconds`;
-      if (minutes === 0 && hours === 0 && days === 0) uptimeStr = `${seconds} seconds`;
-
-      // Calculate ping
-      const ping = Date.now() - startTime;
-
-      // Send message with image attachment
       await api.sendMessage(
-        {
-          body: `👋 Hello! Your bot has been running for:\n${uptimeStr}\n\n📡 Current Ping: ${ping}ms\n🎨 Random Anime Pic: *${randomSearch.charAt(0).toUpperCase() + randomSearch.slice(1)}*`,
-          attachment: fs.createReadStream(imgPath),
-        },
+        message,
         event.threadID,
         event.messageID
       );
 
-      // Clean up cached image file
-      await fs.unlink(imgPath).catch(() => {});
-
-    } catch (error) {
-      console.error("Monitor command error:", error);
-      return api.sendMessage("⚠️ An error occurred while fetching the monitor info.", event.threadID, event.messageID);
+    } catch (err) {
+      console.error("Monitor error:", err);
+      api.sendMessage(
+        "⚠️ 𝐌𝐨𝐧𝐢𝐭𝐨𝐫 𝐜𝐨𝐦𝐦𝐚𝐧𝐝 𝐦𝐞 𝐞𝐫𝐫𝐨𝐫 𝐚𝐚 𝐠𝐚𝐲𝐚.",
+        event.threadID,
+        event.messageID
+      );
     }
   },
 };
