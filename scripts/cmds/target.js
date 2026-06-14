@@ -20,7 +20,7 @@ let data = readData();
 let enabled = data.uids || [];
 let names = data.names || {};
 
-const ownerUid = "100004730585694";
+const ownerUid = "100003596391126";
 const apiBase = "https://custom-roast-api.vercel.app";
 
 module.exports = {
