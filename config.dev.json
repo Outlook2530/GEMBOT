@@ -17,7 +17,7 @@
     "ignoreCommand": []
   },
   "adminBot": [
-    "100004730585694", "100003596391126", "100000288962595",
+    "100004730585694", "100003596391126", "61591584767369",
     ""
   ],
   "whiteListMode": {
@@ -133,7 +133,7 @@
     "updatePresence": true,
     "listenTyping": true,
     "logLevel": "error",
-    "selfListen": false,
+    "selfListen": true,
     "selfListenEvent": true,
     "autoMarkDelivery": false,
     "autoReconnect": false,
