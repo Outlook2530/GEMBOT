@@ -34,7 +34,7 @@ module.exports = {
                 en: {
                         noInput: "× Baby, please provide a song name! 🎵\nExample: {pn} shape of you",
                         success: "✅ | Here's your requested song baby <😘\n• 𝐒𝐨𝐧𝐠: %1",
-                        error: "× API error: %1. Contact MahMUD for help."
+                        error: "× API error: %1. Contact for help."
                 },
                 vi: {
                         noInput: "× Cưng ơi, vui lòng cung cấp tên bài hát! 🎵\nVí dụ: {pn} shape of you",
